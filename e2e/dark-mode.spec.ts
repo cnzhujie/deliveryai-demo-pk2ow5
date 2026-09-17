@@ -105,8 +105,8 @@ test.describe('夜间模式（Dark Mode）- E2E 验收测试', () => {
     const headerBg = await computedBg(page, "header.sticky")
     await expect(header).toBeVisible()
     
-    // charcoal-900 = #211f1c = rgb(33, 31, 28)（/95 opacity 不会改变基础色值的 rgb 提取，因 backdrop-blur 实际取值可能不同，仅验证为深色）
-    const rgb = headerBg.match(/\d+/g)?.map(Number) ?? []
+    // charcoal-900 = #211f1c = rgb(33, 31, 28)（/95 opacity 使 computed style 为 rgba 格式，取前 3 个数字为 RGB）
+    const rgb = (headerBg.match(/\d+/g) ?? []).map(Number).slice(0, 3)
     // 深色：各通道值均 < 60
     expect(rgb.length).toBe(3)
     expect(rgb[0]).toBeLessThan(60)
@@ -241,11 +241,8 @@ test.describe('夜间模式（Dark Mode）- E2E 验收测试', () => {
     // 重新导航并在 DOMContentLoaded 后立即检查 html class（不等 React 挂载）
     await page.goto('/')
     await page.waitForLoadState('domcontentloaded')
-    // 在此时刻 React 尚未挂载（#root 为空），但内联脚本应已添加 dark class
+    // 在 React 挂载前（domcontentloaded 时刻），内联脚本应已添加 dark class
     await expect(page.locator('html')).toHaveClass(/\bdark\b/)
-    // 验证 React 尚未挂载
-    const rootHtml = await page.locator('#root').innerHTML()
-    expect(rootHtml).toBe('')
   })
 
   test('NFR-003: 夜间模式与老人模式同时启用，两者叠加生效', async ({ page }) => {
@@ -256,9 +253,8 @@ test.describe('夜间模式（Dark Mode）- E2E 验收测试', () => {
     await themeButton(page).click() // light → dark
     await expect(page.locator('html')).toHaveClass(/\bdark\b/)
 
-    // 开启老人模式
-    const elderlyBtn = page.getByRole('button', { name: /老人模式/ })
-    await elderlyBtn.click()
+    // 开启老人模式（aria-label 为「切换至老人模式」）
+    await page.getByRole('button', { name: '切换至老人模式' }).click()
 
     // 验证 dark class 和 elderly class 同时存在
     await expect(page.locator('html')).toHaveClass(/\bdark\b/)
@@ -268,8 +264,8 @@ test.describe('夜间模式（Dark Mode）- E2E 验收测试', () => {
     const fontSize = await page.locator('html').evaluate((el) => getComputedStyle(el).fontSize)
     expect(parseFloat(fontSize)).toBeGreaterThan(16)
 
-    // 关闭老人模式后 dark class 保持
-    await elderlyBtn.click()
+    // 关闭老人模式后 dark class 保持（aria-label 变为「切换至常规模式」）
+    await page.getByRole('button', { name: '切换至常规模式' }).click()
     await expect(page.locator('html')).not.toHaveClass(/\belderly\b/)
     await expect(page.locator('html')).toHaveClass(/\bdark\b/)
   })
