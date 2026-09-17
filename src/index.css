@@ -4,11 +4,14 @@
 @tailwind utilities;
 
 :root { color: #211f1c; background: #fbf5ea; font-synthesis: none; }
+.dark { color: #f3e6d0; background: #211f1c; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: #fbf5ea; }
+.dark body { background: #211f1c; }
 button, input { font: inherit; }
 ::selection { background: #ffddd8; color: #a9231a; }
+.dark ::selection { background: rgba(225, 59, 43, 0.3); color: #ffddd8; }
 
 /* 老人模式全局基础：放大字号约 1.25 倍 */
 .elderly { font-size: 125%; }
@@ -35,6 +38,9 @@ html * {
   .paper-noise {
     background-image: radial-gradient(rgba(170, 110, 60, .08) .7px, transparent .7px);
     background-size: 12px 12px;
+  }
+  .dark .paper-noise {
+    background-image: radial-gradient(rgba(255, 220, 200, .03) .7px, transparent .7px);
   }
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }

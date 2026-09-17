@@ -15,6 +15,24 @@
         } catch (e) {
           // localStorage 不可用时保持默认中文
         }
+        // 初始化主题，避免首屏闪烁（FOUC）
+        try {
+          var themeMode = localStorage.getItem('theme-mode');
+          var isDark;
+          if (themeMode === 'dark') {
+            isDark = true;
+          } else if (themeMode === 'light') {
+            isDark = false;
+          } else {
+            // 默认 auto，跟随系统偏好
+            isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          }
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          // localStorage 或 matchMedia 不可用时保持默认浅色
+        }
       })();
     </script>
   </head>

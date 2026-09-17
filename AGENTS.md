@@ -21,7 +21,8 @@ src/
 ├── state/orderReducer.ts # 全局状态 reducer（订单/购物车/服务/售罄/支付）
 ├── data/menu.ts          # 菜品/分类/桌台静态数据
 ├── hooks/
-│   └── useElderlyMode.ts # 老人模式 hook：localStorage + html.elderly class
+│   ├── useElderlyMode.ts # 老人模式 hook：localStorage + html.elderly class
+│   └── useThemeMode.ts   # 主题模式 hook：localStorage + html.dark class（三态 light/dark/auto）
 ├── lib/utils.ts          # 工具函数：cn（类名合并）、money（¥ 金额格式化）
 ├── components/
 │   ├── BindTable.tsx     # 绑定餐桌视图
@@ -51,7 +52,7 @@ playwright.config.ts     # Playwright 配置
 ## 技术栈
 
 - **框架**：React 18 + TypeScript ~5.6 + Vite 6
-- **样式**：Tailwind CSS 3.4（单一浅色主题，无暗色模式）
+- **样式**：Tailwind CSS 3.4（支持日间/夜间双主题，`darkMode: 'class'`）
 - **UI 库**：Radix UI（Dialog）、lucide-react（图标）、class-variance-authority（Button 变体）
 - **国际化**：i18next + react-i18next（中/英双语）
 - **E2E 测试**：Playwright
@@ -76,7 +77,7 @@ playwright.config.ts     # Playwright 配置
 
 - 颜色类名**直接硬编码在组件 JSX** 中（如 `bg-rice-100`、`text-charcoal-900`、`border-charcoal-900/5`），未使用 CSS 变量或语义 token 层。
 - 新增组件时沿用同样的 Tailwind 类名直写模式，不引入 CSS 变量抽象层。
-- 当前为单一浅色主题，Tailwind 未配置 `darkMode`，组件中没有 `dark:` 变体。
+- 已配置 `darkMode: 'class'`，组件中使用 `dark:` 变体适配夜间模式。夜间配色通过 `html.dark` class 控制，由 `useThemeMode` hook 管理三态（light/dark/auto）。
 
 ### 全局过渡
 
@@ -121,7 +122,7 @@ export function useXxx() {
 ### 新增 localStorage 持久化功能
 
 - 统一使用 `try/catch` 包裹 `localStorage.getItem` / `setItem`，不可用时降级为内存态，不报错不阻塞。
-- 现有 localStorage key：`i18nextLng`（语言）、`elderly-mode`（老人模式，值为 `true`/`false`）。
+- 现有 localStorage key：`i18nextLng`（语言）、`elderly-mode`（老人模式，值为 `true`/`false`）、`theme-mode`（主题模式，值为 `light`/`dark`/`auto`）。
 
 ### 新增挂载前初始化逻辑
 
@@ -131,7 +132,7 @@ export function useXxx() {
 
 - 页面级组件放在 `src/components/`，通用 UI 组件放在 `src/components/ui/`。
 - 组件使用 Tailwind 类名直写样式，不使用 CSS Modules 或 styled-components。
-- 颜色使用上述色板，仅需浅色样式。
+- 颜色使用上述色板，需同时提供浅色样式和 `dark:` 暗色变体。
 - 弹窗使用 `src/components/ui/dialog.tsx` 封装的 `Dialog` / `DialogContent`。
 - 按钮使用 `src/components/ui/button.tsx` 封装的 `Button` 组件，选择合适的 variant。
 - 图标使用 `lucide-react`，颜色通过 `currentColor` 继承。
